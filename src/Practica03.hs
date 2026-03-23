@@ -64,7 +64,8 @@ type Clausula = [Literal]
 
 --Ejercicio 1
 clausulas :: Prop -> [Clausula]
-clausulas = undefined
+clausulas (And p q) = [(clausulas p)] + [(clausulas q)]
+clausulas p = [p] 
 
 --Ejercicio 2
 resolucion :: Clausula -> Clausula -> Clausula
