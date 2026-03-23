@@ -32,8 +32,17 @@ FORMAS NORMALES
 
 --Ejercicio 1
 fnn :: Prop -> Prop
-fnn = undefined
-
+fnn (Cons b) = (Cons b)
+fnn (Var p) = (Var p)
+fnn (Not(Var p)) = (Not(Var p)) 
+fnn (Not(Or p q)) = And (fnn(Not p)) (fnn(Not q))
+fnn (Not(And p q)) = Or (fnn(Not p))(fnn(Not q))
+fnn (Not(Impl p q)) = And (fnn p)(fnn(Not q))
+fnn (Not(Not p)) =  fnn p 
+fnn (Or p q) = Or (fnn p) (fnn q)
+fnn (And p q) = And (fnn p) (fnn q)
+fnn (Impl p q) = Or (fnn (Not p)) (fnn q) 
+fnn (Syss p q) =  And (Or (fnn(Not p)) (fnn q)) (Or (fnn(Not q)) (fnn p))
 
 --Ejercicio 2
 fnc :: Prop -> Prop
