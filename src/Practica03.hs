@@ -46,7 +46,13 @@ fnn (Syss p q) =  And (Or (fnn(Not p)) (fnn q)) (Or (fnn(Not q)) (fnn p))
 
 --Ejercicio 2
 fnc :: Prop -> Prop
-fnc = undefined
+fnc (Cons b) = (Cons b)
+fnc (Var p) = (Var p)
+fnc (Not p) = fnn p
+fnc (Or p (And q r)) = (And (Or p q) (Or p r))
+fnc (And p (Or q r)) = (Or (And p q) (And p r))
+fnc (Impl p q) = fnn (Impl p q)
+fnc (Syss p q) = fnn (Syss p q)
 
 {-
 RESOLUCION BINARIA
