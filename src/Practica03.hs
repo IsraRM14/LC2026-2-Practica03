@@ -46,13 +46,17 @@ fnn (Syss p q) =  And (Or (fnn(Not p)) (fnn q)) (Or (fnn(Not q)) (fnn p))
 
 --Ejercicio 2
 fnc :: Prop -> Prop
-fnc (Cons b) = (Cons b)
-fnc (Var p) = (Var p)
-fnc (Not p) = fnn p
-fnc (Or p (And q r)) = (And (Or p q) (Or p r))
-fnc (And p (Or q r)) = (Or (And p q) (And p r))
-fnc (Impl p q) = fnn (Impl p q)
-fnc (Syss p q) = fnn (Syss p q)
+fnc p = distri ( fnn (p))
+
+distri :: Prop -> Prop
+distri (And p q) = And (distri p) (distri q)
+distri (Or p q)  = distriOr (distri p) (distri q)
+distri p         = p
+
+distriOr :: Prop -> Prop -> Prop
+distriOr (And p q) r = And (distri (Or p r)) (distri (Or q r))
+distriOr r (And p q) = And (distri (Or r p)) (distri (Or r q))
+distriOr p q         = Or p q
 
 {-
 RESOLUCION BINARIA
@@ -64,8 +68,8 @@ type Clausula = [Literal]
 
 --Ejercicio 1
 clausulas :: Prop -> [Clausula]
-clausulas (And p q) = [(clausulas p)] + [(clausulas q)]
-clausulas p = [p] 
+clausulas (And p q) = clausulas p ++ clausulas q
+clausulas p = [[p]] 
 
 --Ejercicio 2
 resolucion :: Clausula -> Clausula -> Clausula
