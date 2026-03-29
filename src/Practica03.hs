@@ -55,7 +55,7 @@ distri p         = p
 
 distriOr :: Prop -> Prop -> Prop
 distriOr (And p q) r = And (distri (Or p r)) (distri (Or q r))
-distriOr r (And p q) = And (distri (Or r p)) (distri (Or r q))
+distriOr r (And p q) = And (distri (Or p r)) (distri (Or q r))
 distriOr p q         = Or p q
 
 {-
@@ -66,14 +66,28 @@ RESOLUCION BINARIA
 type Literal = Prop
 type Clausula = [Literal]
 
+complemento :: Prop -> Prop
+complemento (Not p) = p
+complemento p       = Not p
+
 --Ejercicio 1
 clausulas :: Prop -> [Clausula]
 clausulas (And p q) = clausulas p ++ clausulas q
-clausulas p = [[p]] 
+clausulas p = [eliminarDuplicados (clausula p)]
+
+clausula :: Prop -> Clausula
+clausula (Or p q) = clausula p ++ clausula q
+clausula p        = [p]
 
 --Ejercicio 2
 resolucion :: Clausula -> Clausula -> Clausula
-resolucion = undefined
+resolucion c1 c2 =
+    case [ (l, complemento l) | l <- c1, complemento l `elem` c2 ] of
+        ((l, lc):_) ->
+            let c1' = filter (/= l) c1
+                c2' = filter (/= lc) c2
+            in eliminarDuplicados(c1' ++ c2')
+        [] -> eliminarDuplicados(c1 ++ c2)
 
 {-
 ALGORITMO DE SATURACION
@@ -81,9 +95,25 @@ ALGORITMO DE SATURACION
 
 --Ejercicio 1
 hayResolvente :: Clausula -> Clausula -> Bool
-hayResolvente = undefined
+hayResolvente c1 c2 = any (\l -> complemento l `elem` c2) c1
 
 --Ejercicio 2
---Funcion principal que pasa la formula proposicional a fnc e invoca a res con las clausulas de la formula.
 saturacion :: Prop -> Bool
-saturacion = undefined
+saturacion p = saturar (clausulas (fnc p))
+
+saturar :: [Clausula] -> Bool
+saturar cls
+    | [] `elem` cls = False   
+    | otherwise =
+        let nuevos = [ resolucion c1 c2 
+                     | c1 <- cls, c2 <- cls,
+                       hayResolvente c1 c2 ]
+        in if all (`elem` cls) nuevos
+           then if length cls > 20  -- limitamos para que no siga al infinito
+                then let loop = loop in loop 
+                else True                    
+           else saturar (eliminarDuplicados (cls ++ nuevos))
+
+eliminarDuplicados :: Eq a => [a] -> [a]
+eliminarDuplicados [] = []
+eliminarDuplicados (x:xs) = x : eliminarDuplicados (filter (/= x) xs)
